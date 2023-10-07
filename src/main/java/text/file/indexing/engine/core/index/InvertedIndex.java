@@ -1,13 +1,13 @@
 package text.file.indexing.engine.core.index;
 
 import text.file.indexing.engine.core.Token;
-import text.file.indexing.engine.watcher.FileWatcher;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -18,7 +18,7 @@ import static java.util.logging.Level.SEVERE;
  */
 public class InvertedIndex extends Index {
 
-    private static final Logger LOGGER = Logger.getLogger(FileWatcher.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(InvertedIndex.class.getName());
 
     private final Map<String, Set<Path>> wordToFilesMap;
 
@@ -39,7 +39,6 @@ public class InvertedIndex extends Index {
             indexWords(words, path);
         } catch (IOException e) {
             LOGGER.log(SEVERE, "A problem has occurred while indexing the file.", e);
-            throw new RuntimeException();
         }
     }
 
@@ -59,7 +58,7 @@ public class InvertedIndex extends Index {
     private void indexWords(List<String> words, Path path) {
         words.forEach(word ->
                 wordToFilesMap.compute(word, (k, v) -> {
-                    Set<Path> paths = v == null ? new HashSet<>() : v;
+                    Set<Path> paths = v == null ? new ConcurrentSkipListSet<>() : v;
                     paths.add(path);
                     return paths;
                 }));
@@ -70,8 +69,10 @@ public class InvertedIndex extends Index {
         return wordToFilesMap.getOrDefault(queryWord, Collections.emptySet());
     }
 
+
     protected void removeFileFromIndex(Path path) {
-        wordToFilesMap.values().forEach(files -> files.remove(path));
+        wordToFilesMap.values()
+                .forEach(files -> files.removeIf(it -> it.startsWith(path)));
     }
 
     protected void cleanupIndex() {

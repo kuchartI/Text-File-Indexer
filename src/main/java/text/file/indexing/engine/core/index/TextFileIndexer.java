@@ -6,17 +6,14 @@ import text.file.indexing.engine.util.PathValidator;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TextFileIndexer {
     private final Index index;
     private final Token token;
-    private final Set<Path> concurrentHashSet;
 
     public TextFileIndexer(Token token, Index index) {
         this.token = token;
         this.index = index;
-        concurrentHashSet = ConcurrentHashMap.newKeySet();
     }
 
     public void indexFiles(List<Path> paths) {
@@ -26,15 +23,11 @@ public class TextFileIndexer {
 
     public void indexFile(Path path) {
         PathValidator.getValidPathList(path)
-                .forEach(it -> {
-                    concurrentHashSet.add(it);
-                    index.indexFile(it, token);
-                });
+                .forEach(it -> index.indexFile(it, token));
     }
 
     public void removeFromIndex(Path path) {
         index.removeFileFromIndex(path);
-        concurrentHashSet.remove(path);
         index.cleanupIndex();
     }
 

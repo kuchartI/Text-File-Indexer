@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -31,12 +32,7 @@ public class FileWatcher {
     }
 
     public void registerWatching(List<Path> paths) {
-        List<Path> pathList = PathValidator.getValidPathList(paths);
-        EXECUTOR.execute(() -> initializeWatch(pathList));
-    }
-
-    public void registerWatching(Path path) {
-        List<Path> pathList = PathValidator.getValidPathList(path);
+        Set<Path> pathList = PathValidator.getValidPathList(paths);
         EXECUTOR.execute(() -> initializeWatch(pathList));
     }
 
@@ -44,7 +40,7 @@ public class FileWatcher {
         stopFlag = false;
     }
 
-    private void initializeWatch(List<Path> pathList) {
+    private void initializeWatch(Set<Path> pathList) {
         try {
             watchService = FileSystems.getDefault().newWatchService();
             registerPaths(pathList);
@@ -54,7 +50,7 @@ public class FileWatcher {
         }
     }
 
-    private void registerPaths(List<Path> pathList) {
+    private void registerPaths(Set<Path> pathList) {
         pathList.stream()
                 .map(Path::getParent)
                 .distinct()
@@ -65,10 +61,12 @@ public class FileWatcher {
         try {
             WatchKey key = path.register(watchService,
                     StandardWatchEventKinds.ENTRY_MODIFY,
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
                     StandardWatchEventKinds.OVERFLOW);
             fileNameDirPath.put(key, path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.warning("can't register file");
         }
     }
 
@@ -97,7 +95,11 @@ public class FileWatcher {
             Path fileName = (Path) event.context();
             if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
                 executeFileModifyEvent(key, fileName);
-            }  else if (kind == StandardWatchEventKinds.OVERFLOW) {
+            } else if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                executeFileCreateEvent(key, fileName);
+            } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                executeFileDeleteEvent(key, fileName);
+            } else if (kind == StandardWatchEventKinds.OVERFLOW) {
                 LOGGER.warning("Too many changes at once, some changes may be lost.");
             }
         }
@@ -107,18 +109,29 @@ public class FileWatcher {
     private void executeFileDeleteEvent(WatchKey key, Path fileName) {
         if (fileNameDirPath.containsKey(key)) {
             Path fullPath = fileNameDirPath.get(key).resolve(fileName);
-            if (Files.isDirectory(fullPath)) {
-                key.cancel();
-                fileNameDirPath.remove(key);
-                LOGGER.warning("File deleting " + fullPath);
-            }
+            removeDirFromWatching(key, fullPath);
+            textFileIndexer.removeFromIndex(fullPath);
+            LOGGER.warning("File deleting " + fullPath);
         }
+    }
+
+
+    private void removeDirFromWatching(WatchKey key, Path fullPath) {
+        fileNameDirPath.forEach((innerKey, value) -> {
+            if (value.equals(fullPath)) {
+                innerKey.cancel();
+                fileNameDirPath.remove(key);
+                LOGGER.warning("Directory remove from watching " + fullPath);
+            }
+        });
     }
 
     private void executeFileCreateEvent(WatchKey key, Path fileName) {
         if (fileNameDirPath.containsKey(key)) {
             Path fullPath = fileNameDirPath.get(key).resolve(fileName);
-            registerPath(fullPath);
+            if (Files.isDirectory(fullPath)) {
+                registerPath(fullPath);
+            }
             textFileIndexer.indexFile(fullPath);
             LOGGER.info("Create new dir/file " + fileName);
         }
@@ -127,10 +140,7 @@ public class FileWatcher {
     private void executeFileModifyEvent(WatchKey key, Path fileName) {
         if (fileNameDirPath.containsKey(key)) {
             Path fullPath = fileNameDirPath.get(key).resolve(fileName);
-            if (Files.notExists(fullPath)) {
-                executeFileDeleteEvent(key, fullPath);
-                textFileIndexer.removeFromIndex(fullPath);
-            } else {
+            if (Files.exists(fullPath)) {
                 textFileIndexer.reIndexFile(fullPath);
                 LOGGER.info("File modified: " + fullPath);
             }

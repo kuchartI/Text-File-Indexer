@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -12,23 +14,23 @@ import java.util.stream.Stream;
  */
 public class PathValidator {
 
-    public static List<Path> getValidPathList(List<Path> paths) {
+    public static Set<Path> getValidPathList(List<Path> paths) {
         if (paths == null) {
             throw new IllegalArgumentException("paths must not be null");
         }
         return paths.stream()
                 .flatMap(list -> getValidPathList(list).stream())
-                .toList();
+                .collect(Collectors.toSet());
     }
 
-    public static List<Path> getValidPathList(Path path) {
+    public static Set<Path> getValidPathList(Path path) {
         validatePath(path);
         if (Files.notExists(path)) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         } else if (Files.isDirectory(path)) {
             return findAllFilesInDir(path);
         } else {
-            return List.of(path);
+            return Set.of(path);
         }
     }
 
@@ -41,12 +43,12 @@ public class PathValidator {
         }
     }
 
-    private static List<Path> findAllFilesInDir(Path path) {
+    private static Set<Path> findAllFilesInDir(Path path) {
         try (Stream<Path> stream = Files.walk(path)) {
-            return stream.filter(Files::isRegularFile).toList();
+            return stream.filter(Files::isRegularFile).collect(Collectors.toSet());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 }
