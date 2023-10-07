@@ -1,7 +1,7 @@
 package text.file.indexing.engine.watcher;
 
 import text.file.indexing.engine.core.index.TextFileIndexer;
-import text.file.indexing.engine.util.PathValidator;
+import text.file.indexing.engine.utils.PathValidator;
 
 import java.io.IOException;
 import java.nio.file.*;

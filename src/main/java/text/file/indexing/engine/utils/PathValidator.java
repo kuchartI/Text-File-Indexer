@@ -1,4 +1,4 @@
-package text.file.indexing.engine.util;
+package text.file.indexing.engine.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;

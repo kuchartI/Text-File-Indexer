@@ -1,7 +1,7 @@
 package text.file.indexing.engine.core.index;
 
 import text.file.indexing.engine.core.Token;
-import text.file.indexing.engine.util.PathValidator;
+import text.file.indexing.engine.utils.PathValidator;
 
 import java.nio.file.Path;
 import java.util.List;
