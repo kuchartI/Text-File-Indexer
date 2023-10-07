@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,6 +14,8 @@ import java.util.stream.Stream;
  * A utility class for validating and retrieving valid paths.
  */
 public class PathValidator {
+
+    private static final Logger LOGGER = Logger.getLogger(PathValidator.class.getName());
 
     public static Set<Path> getValidPathList(List<Path> paths) {
         if (paths == null) {
@@ -47,7 +50,7 @@ public class PathValidator {
         try (Stream<Path> stream = Files.walk(path)) {
             return stream.filter(Files::isRegularFile).collect(Collectors.toSet());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.severe(e.getMessage());
         }
         return Collections.emptySet();
     }

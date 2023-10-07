@@ -2,6 +2,7 @@ package text.file.indexing.engine.core.index;
 
 import text.file.indexing.engine.core.Token;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,9 +44,14 @@ public class InvertedIndex extends Index {
     }
 
     private List<String> readLines(Path path) throws IOException {
-        try (Stream<String> stream = Files.lines(path)) {
-            return stream.toList();
+        List<String> list = new ArrayList<>();
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                list.add(line);
+            }
         }
+        return list;
     }
 
     private List<String> tokenize(List<String> lines, Token token) {
@@ -64,18 +70,18 @@ public class InvertedIndex extends Index {
                 }));
     }
 
-    protected Set<Path> searchFiles(String queryWord) {
+    Set<Path> searchFiles(String queryWord) {
         queryWord = queryWord.toLowerCase();
         return wordToFilesMap.getOrDefault(queryWord, Collections.emptySet());
     }
 
 
-    protected void removeFileFromIndex(Path path) {
+    void removeFileFromIndex(Path path) {
         wordToFilesMap.values()
                 .forEach(files -> files.removeIf(it -> it.startsWith(path)));
     }
 
-    protected void cleanupIndex() {
+    void cleanupIndex() {
         wordToFilesMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 }
