@@ -10,14 +10,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import static java.util.logging.Level.SEVERE;
 
 /**
  * InvertedIndex class represents an inverted index data structure used for text indexing and searching.
  */
-public class InvertedIndex extends Index {
+class InvertedIndex extends Index {
 
     private static final Logger LOGGER = Logger.getLogger(InvertedIndex.class.getName());
 
@@ -34,29 +33,19 @@ public class InvertedIndex extends Index {
     }
 
     void indexFile(Path path, Token token) {
-        try {
-            var lines = readLines(path);
-            var words = tokenize(lines, token);
-            indexWords(words, path);
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                var words = tokenize(line, token);
+                indexWords(words, path);
+            }
         } catch (IOException e) {
             LOGGER.log(SEVERE, "A problem has occurred while indexing the file.", e);
         }
     }
 
-    private List<String> readLines(Path path) throws IOException {
-        List<String> list = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(path)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                list.add(line);
-            }
-        }
-        return list;
-    }
-
-    private List<String> tokenize(List<String> lines, Token token) {
-        return lines.stream()
-                .flatMap(line -> Arrays.stream(line.split(token.token())))
+    private List<String> tokenize(String line, Token token) {
+        return Arrays.stream(line.split(token.token()))
                 .map(String::toLowerCase)
                 .toList();
     }

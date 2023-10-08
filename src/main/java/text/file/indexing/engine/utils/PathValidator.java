@@ -26,7 +26,7 @@ public class PathValidator {
                 .collect(Collectors.toSet());
     }
 
-    public static Set<Path> getValidPathSet(Path path) {
+    private static Set<Path> getValidPathSet(Path path) {
         validatePath(path);
         if (Files.notExists(path)) {
             return Collections.emptySet();

@@ -1,25 +1,30 @@
 package text.file.indexing.engine.watcher;
 
-import text.file.indexing.engine.core.index.TextFileIndexer;
+import text.file.indexing.engine.core.index.SimpleTextFileIndexer;
 
 import java.nio.file.*;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * The FileSystemWatchServiceEventProcessor class is responsible for processing events triggered by
+ * the file system watch service. It listens for file system events such as file modifications, creations,
+ * and deletions, and performs corresponding actions on the indexed files and directories.
+ */
 public class FileSystemWatchServiceEventProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(FileSystemWatchServiceEventProcessor.class.getName());
 
-    private final TextFileIndexer textFileIndexer;
+    private final SimpleTextFileIndexer simpleTextFileIndexer;
 
     private final Map<WatchKey, Path> fileNameDirPath;
 
     private final FileSystemWatchServiceWatcher fileSystemWatchServiceWatcher;
 
 
-    public FileSystemWatchServiceEventProcessor(TextFileIndexer textFileIndexer, Map<WatchKey, Path> fileNameDirPath,
+    public FileSystemWatchServiceEventProcessor(SimpleTextFileIndexer simpleTextFileIndexer, Map<WatchKey, Path> fileNameDirPath,
                                                 FileSystemWatchServiceWatcher fileSystemWatchServiceWatcher) {
-        this.textFileIndexer = textFileIndexer;
+        this.simpleTextFileIndexer = simpleTextFileIndexer;
         this.fileNameDirPath = fileNameDirPath;
         this.fileSystemWatchServiceWatcher = fileSystemWatchServiceWatcher;
     }
@@ -48,7 +53,7 @@ public class FileSystemWatchServiceEventProcessor {
         if (fileNameDirPath.containsKey(key)) {
             Path fullPath = fileNameDirPath.get(key).resolve(fileName);
             removeDirFromWatching(fullPath);
-            textFileIndexer.removeFromIndex(fullPath);
+            simpleTextFileIndexer.removeFromIndex(fullPath);
             LOGGER.warning("File deleting " + fullPath);
         }
     }
@@ -69,7 +74,7 @@ public class FileSystemWatchServiceEventProcessor {
             if (Files.isDirectory(fullPath)) {
                 fileSystemWatchServiceWatcher.registerPath(fullPath);
             }
-            textFileIndexer.indexFile(fullPath);
+            simpleTextFileIndexer.indexFile(fullPath);
             LOGGER.info("Create new dir/file " + fileName);
         }
     }
@@ -78,8 +83,7 @@ public class FileSystemWatchServiceEventProcessor {
         if (fileNameDirPath.containsKey(key)) {
             Path fullPath = fileNameDirPath.get(key).resolve(fileName);
             if (Files.exists(fullPath)) {
-                textFileIndexer.reIndexFile(fullPath);
-                LOGGER.info("File modified: " + fullPath);
+                simpleTextFileIndexer.reIndexFile(fullPath);
             }
         }
     }

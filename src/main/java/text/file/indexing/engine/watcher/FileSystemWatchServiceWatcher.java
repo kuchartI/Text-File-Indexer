@@ -1,6 +1,6 @@
 package text.file.indexing.engine.watcher;
 
-import text.file.indexing.engine.core.index.TextFileIndexer;
+import text.file.indexing.engine.core.index.SimpleTextFileIndexer;
 import text.file.indexing.engine.utils.PathValidator;
 
 import java.io.IOException;
@@ -13,13 +13,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
+/**
+ * Implements the {@link FileSystemWatcher} interface to monitor changes in the file system using WatchService.
+ */
 public class FileSystemWatchServiceWatcher implements FileSystemWatcher {
 
     private static final Logger LOGGER = Logger.getLogger(FileSystemWatchServiceWatcher.class.getName());
 
     private final Map<WatchKey, Path> fileNameDirPath;
 
-    private static final Executor EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+    private static final Executor EXECUTOR = Executors.newCachedThreadPool();
 
     private final WatchService watchService;
 
@@ -27,14 +30,14 @@ public class FileSystemWatchServiceWatcher implements FileSystemWatcher {
 
     private volatile boolean runningFlag;
 
-    public FileSystemWatchServiceWatcher(TextFileIndexer textFileIndexer) {
+    public FileSystemWatchServiceWatcher(SimpleTextFileIndexer simpleTextFileIndexer) {
         try {
             watchService = FileSystems.getDefault().newWatchService();
         } catch (IOException e) {
             throw new UnsupportedOperationException(e);
         }
         fileNameDirPath = new ConcurrentHashMap<>();
-        fileSystemWatchServiceEventProcessor = new FileSystemWatchServiceEventProcessor(textFileIndexer, fileNameDirPath, this);
+        fileSystemWatchServiceEventProcessor = new FileSystemWatchServiceEventProcessor(simpleTextFileIndexer, fileNameDirPath, this);
     }
 
     public void startWatching(Collection<Path> paths) {
