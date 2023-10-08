@@ -17,12 +17,12 @@ public class TextFileIndexer {
     }
 
     public void indexFiles(Collection<Path> paths) {
-        PathValidator.getValidPathList(paths)
+        PathValidator.getValidPathSet(paths)
                 .forEach(this::indexFile);
     }
 
     public void indexFile(Path path) {
-        PathValidator.getValidPathList(path)
+        PathValidator.getValidPathSet(path)
                 .forEach(it -> index.indexFile(it, token));
     }
 
@@ -32,7 +32,7 @@ public class TextFileIndexer {
     }
 
     public void reIndexFile(Path path) {
-        PathValidator.getValidPathList(path)
+        PathValidator.getValidPathSet(path)
                 .forEach(it -> index.reIndexFile(it, token));
     }
 

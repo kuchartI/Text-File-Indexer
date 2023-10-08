@@ -33,14 +33,13 @@ public class FileSystemWatchServiceWatcher implements FileSystemWatcher {
         } catch (IOException e) {
             throw new UnsupportedOperationException(e);
         }
-        runningFlag = true;
         fileNameDirPath = new ConcurrentHashMap<>();
         fileSystemWatchServiceEventProcessor = new FileSystemWatchServiceEventProcessor(textFileIndexer, fileNameDirPath, this);
     }
 
     public void startWatching(Collection<Path> paths) {
         runningFlag = true;
-        Set<Path> pathList = PathValidator.getValidPathList(paths);
+        Set<Path> pathList = PathValidator.getValidPathSet(paths);
         EXECUTOR.execute(() -> initializeWatch(pathList));
     }
 

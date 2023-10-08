@@ -17,16 +17,16 @@ public class PathValidator {
 
     private static final Logger LOGGER = Logger.getLogger(PathValidator.class.getName());
 
-    public static Set<Path> getValidPathList(Collection<Path> paths) {
+    public static Set<Path> getValidPathSet(Collection<Path> paths) {
         if (paths == null) {
             throw new IllegalArgumentException("paths must not be null");
         }
         return paths.stream()
-                .flatMap(list -> getValidPathList(list).stream())
+                .flatMap(list -> getValidPathSet(list).stream())
                 .collect(Collectors.toSet());
     }
 
-    public static Set<Path> getValidPathList(Path path) {
+    public static Set<Path> getValidPathSet(Path path) {
         validatePath(path);
         if (Files.notExists(path)) {
             return Collections.emptySet();
