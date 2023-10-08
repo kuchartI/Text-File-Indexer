@@ -4,7 +4,7 @@ import text.file.indexing.engine.core.Token;
 import text.file.indexing.engine.utils.PathValidator;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 public class TextFileIndexer {
@@ -16,7 +16,7 @@ public class TextFileIndexer {
         this.index = index;
     }
 
-    public void indexFiles(List<Path> paths) {
+    public void indexFiles(Collection<Path> paths) {
         PathValidator.getValidPathList(paths)
                 .forEach(this::indexFile);
     }

@@ -3,8 +3,8 @@ package text.file.indexing.engine.utils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -17,7 +17,7 @@ public class PathValidator {
 
     private static final Logger LOGGER = Logger.getLogger(PathValidator.class.getName());
 
-    public static Set<Path> getValidPathList(List<Path> paths) {
+    public static Set<Path> getValidPathList(Collection<Path> paths) {
         if (paths == null) {
             throw new IllegalArgumentException("paths must not be null");
         }

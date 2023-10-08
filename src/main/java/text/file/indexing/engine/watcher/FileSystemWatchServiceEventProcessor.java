@@ -6,22 +6,22 @@ import java.nio.file.*;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class FileSystemEventProcessor {
+public class FileSystemWatchServiceEventProcessor {
 
-    private static final Logger LOGGER = Logger.getLogger(FileSystemEventProcessor.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(FileSystemWatchServiceEventProcessor.class.getName());
 
     private final TextFileIndexer textFileIndexer;
 
     private final Map<WatchKey, Path> fileNameDirPath;
 
-    private final FileSystemWatcher fileSystemWatcher;
+    private final FileSystemWatchServiceWatcher fileSystemWatchServiceWatcher;
 
 
-    public FileSystemEventProcessor(TextFileIndexer textFileIndexer, Map<WatchKey, Path> fileNameDirPath,
-                                    FileSystemWatcher fileSystemWatcher) {
+    public FileSystemWatchServiceEventProcessor(TextFileIndexer textFileIndexer, Map<WatchKey, Path> fileNameDirPath,
+                                                FileSystemWatchServiceWatcher fileSystemWatchServiceWatcher) {
         this.textFileIndexer = textFileIndexer;
         this.fileNameDirPath = fileNameDirPath;
-        this.fileSystemWatcher = fileSystemWatcher;
+        this.fileSystemWatchServiceWatcher = fileSystemWatchServiceWatcher;
     }
 
     void processEvent(WatchKey key) {
@@ -67,7 +67,7 @@ public class FileSystemEventProcessor {
         if (fileNameDirPath.containsKey(key)) {
             Path fullPath = fileNameDirPath.get(key).resolve(fileName);
             if (Files.isDirectory(fullPath)) {
-                fileSystemWatcher.registerPath(fullPath);
+                fileSystemWatchServiceWatcher.registerPath(fullPath);
             }
             textFileIndexer.indexFile(fullPath);
             LOGGER.info("Create new dir/file " + fileName);
