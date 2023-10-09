@@ -47,7 +47,9 @@ indexer.indexFiles(pathList);
 String searchWord = "someString";
 Set<Path> searchWordInFiles = indexer.searchWord(searchWord);
 ```
+
 Example of using WatcherTextFileIndexer:
+
 ```
 List<Path> pathList = new ArrayList<>(...);
 WatcherTextFileIndexer indexer = new WatcherTextFileIndexer();

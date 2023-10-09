@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static text.file.indexing.engine.Fixtures.createTempFileWithContent;
 
 public class SimpleTextFileIndexerTest {
 
@@ -80,9 +81,4 @@ public class SimpleTextFileIndexerTest {
         assertThrows(IllegalArgumentException.class, () -> simpleTextFileIndexer.searchFiles("   "));
     }
 
-    private Path createTempFileWithContent(String fileName, String content) throws IOException {
-        Path tempFile = Files.createTempFile(fileName, ".txt");
-        Files.write(tempFile, content.getBytes());
-        return tempFile;
-    }
 }
