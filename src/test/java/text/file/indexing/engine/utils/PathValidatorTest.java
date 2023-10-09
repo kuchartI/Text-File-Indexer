@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Set;
 
@@ -18,13 +17,11 @@ public class PathValidatorTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        // Создаем временную директорию для тестовых файлов
         tempDir = Files.createTempDirectory("test");
     }
 
     @Test
     void testGetValidPathSet() {
-        // Создаем временный файл во временной директории
         Path tempFile = null;
         try {
             tempFile = Files.createTempFile(tempDir, "testFile", ".txt");
@@ -37,10 +34,10 @@ public class PathValidatorTest {
         } catch (IOException e) {
             fail("Failed to create temporary file: " + e.getMessage());
         } finally {
-            // Удаляем временный файл после завершения теста
+
             if (tempFile != null) {
                 try {
-                    Files.delete(tempFile);
+                    Files.deleteIfExists(tempFile);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

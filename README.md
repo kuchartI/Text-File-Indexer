@@ -62,14 +62,10 @@ Set<Path> searchWordInFiles = indexer.searchWord(searchWord);
 indexer.stopWatching();
 ```
 
-If tou want to find position of pattern search, you can
-use [TextFileSearcher](src/main/java/text/file/indexing/engine/core/search/TextFileSearcher.java),
-and his
-implementation [BoyerMooreTextFileSearcher](src/main/java/text/file/indexing/engine/core/search/BoyerMooreTextFileSearcher.java),
-which returns [PathWithPosition](src/main/java/text/file/indexing/engine/core/search/PathWithPosition.java).
+To get the position of search pattern in file, use [TextFileSearcher](src/main/java/text/file/indexing/engine/core/search/TextFileSearcher.java)'s `searchPathAndPosition`.
+The library provides the [BoyerMooreTextFileSearcher](src/main/java/text/file/indexing/engine/core/search/BoyerMooreTextFileSearcher.java), the implementation of Boyer-Moore algorithm.
 
 Example of using BoyerMooreTextFileSearcher:
-
 ```
 TextFileIndexer indexer = ...
 TextFileSearcher searcher = new BoyerMooreTextFileSearcher(indexer);

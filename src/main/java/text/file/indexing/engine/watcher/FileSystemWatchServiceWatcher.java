@@ -37,7 +37,8 @@ public class FileSystemWatchServiceWatcher implements FileSystemWatcher {
             throw new UnsupportedOperationException(e);
         }
         fileNameDirPath = new ConcurrentHashMap<>();
-        fileSystemWatchServiceEventProcessor = new FileSystemWatchServiceEventProcessor(simpleTextFileIndexer, fileNameDirPath, this);
+        fileSystemWatchServiceEventProcessor =
+                new FileSystemWatchServiceEventProcessor(simpleTextFileIndexer, fileNameDirPath, this);
     }
 
     public void startWatching(Collection<Path> paths) {

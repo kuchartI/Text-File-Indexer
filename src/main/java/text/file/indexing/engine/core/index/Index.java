@@ -10,13 +10,13 @@ import java.util.Set;
  * You can write your own index, inherit it from this abstract class and use it to index text files.
  */
 public abstract class Index {
-     abstract void indexFile(Path path, Token token);
+    abstract void indexFile(Path path, Token token);
 
-     abstract void reIndexFile(Path path, Token token);
+    abstract void reIndexFile(Path path, Token token);
 
-     abstract Set<Path> searchFiles(String queryWord);
+    abstract Set<Path> searchFiles(String queryWord);
 
-     abstract void removeFileFromIndex(Path path);
+    abstract void removeFileFromIndex(Path path);
 
-     abstract void cleanupIndex();
+    abstract void cleanupIndex();
 }

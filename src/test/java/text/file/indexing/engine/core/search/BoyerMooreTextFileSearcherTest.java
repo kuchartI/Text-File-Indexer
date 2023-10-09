@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import text.file.indexing.engine.core.index.SimpleTextFileIndexer;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,9 @@ public class BoyerMooreTextFileSearcherTest {
                 new Position(4, 15))));
 
         assertEquals(expected, pathWithPositions);
+        Files.delete(tempFile);
+        Files.delete(tempFile2);
+        Files.delete(tempFile3);
     }
 
     @Test
