@@ -1,11 +1,9 @@
 package text.file.indexing.engine.core.index;
 
 import text.file.indexing.engine.core.Token;
-import text.file.indexing.engine.utils.PathValidator;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,15 +29,14 @@ public class SimpleTextFileIndexer implements TextFileIndexer {
         this.index = index;
     }
 
-
     public void indexFiles(Collection<Path> paths) {
-        PathValidator.getValidPathSet(paths)
-                .forEach(it -> index.indexFile(it, token));
+        index.addFilesToIndex(paths, token);
+        index.indexFiles(token);
     }
 
     public void indexFile(Path path) {
-        PathValidator.getValidPathSet(List.of(path))
-                .forEach(it -> index.indexFile(it, token));
+        index.addFilesToIndex(Set.of(path), token);
+        index.indexFiles(token);
     }
 
     public void removeFromIndex(Path path) {
@@ -48,8 +45,7 @@ public class SimpleTextFileIndexer implements TextFileIndexer {
     }
 
     public void reIndexFile(Path path) {
-        PathValidator.getValidPathSet(List.of(path))
-                .forEach(it -> index.reIndexFile(it, token));
+        index.reIndexFile(path, token);
     }
 
     @Override
