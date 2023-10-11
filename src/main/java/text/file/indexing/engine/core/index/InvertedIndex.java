@@ -73,7 +73,9 @@ class InvertedIndex extends Index {
         words.forEach(word ->
                 wordToFilesMap.compute(word, (k, v) -> {
                     Set<Path> paths = v == null ? new ConcurrentSkipListSet<>() : v;
-                    paths.add(path);
+                    if (processedPaths.getOrDefault(path, new AtomicBoolean(false)).get()) {
+                        paths.add(path);
+                    }
                     return paths;
                 }));
     }
