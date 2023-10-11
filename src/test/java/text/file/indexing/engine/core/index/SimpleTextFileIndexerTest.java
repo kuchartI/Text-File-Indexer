@@ -2,6 +2,7 @@ package text.file.indexing.engine.core.index;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import text.file.indexing.engine.core.Token;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,17 +10,23 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static text.file.indexing.engine.Fixtures.createTempFileWithContent;
+import static text.file.indexing.engine.Fixtures.*;
 
 public class SimpleTextFileIndexerTest {
 
     private SimpleTextFileIndexer simpleTextFileIndexer;
+    private InvertedIndex invertedIndex;
+
 
     @BeforeEach
     void setUp() {
-        simpleTextFileIndexer = new SimpleTextFileIndexer();
+        invertedIndex = new InvertedIndex();
+        simpleTextFileIndexer = new SimpleTextFileIndexer(Token.defaultWhiteSpaceToken(), invertedIndex);
     }
 
     @Test
@@ -68,6 +75,29 @@ public class SimpleTextFileIndexerTest {
         assertEquals(0, simpleTextFileIndexer.searchFiles("test").size());
         Files.delete(tempFile1);
         Files.delete(tempFile2);
+    }
+
+    @Test
+    void testConcurrentIndexAndRemoveFromIndex() throws IOException, InterruptedException {
+        Path tempDir1 = createTempDirWithFiles(113);
+        Path tempDir2 = createTempDirWithFiles(100);
+        Path tempFile1 = createTempFileWithContent("file1.txt", "test 1");
+        invertedIndex.addFilesToIndex(List.of(tempDir1, tempDir2, tempFile1), Token.defaultWhiteSpaceToken());
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        executor.execute(() -> invertedIndex.indexFiles(Token.defaultWhiteSpaceToken()));
+
+        executor.execute(() -> simpleTextFileIndexer.removeFromIndex(tempDir1));
+
+        executor.shutdown();
+        executor.awaitTermination(1, TimeUnit.MINUTES);
+
+        assertEquals(101, simpleTextFileIndexer.searchFiles("test").size());
+
+        deleteDir(tempDir1);
+        deleteDir(tempDir2);
+        Files.delete(tempFile1);
+
     }
 
     @Test
